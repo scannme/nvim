@@ -1,6 +1,7 @@
 nvim 环境搭建
-参考
-https://www.cnblogs.com/cniwoq/p/13272746.html
+
+参考 https://www.cnblogs.com/cniwoq/p/13272746.html
+
 下载nvim.appimage
 https://github.com/neovim/neovim/releases/
 Download nvim.appimage
@@ -10,6 +11,7 @@ If your system does not have FUSE you can extract the appimage:
 ./squashfs-root/usr/bin/nvim
 创建链接
 ln -s /usr/local/squashfs-root/usr/bin/nvim /usr/bin/vim
+
 2. 下载管理插件
 https://github.com/junegunn/vim-plug
 sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
