@@ -21,6 +21,6 @@ keymap.set("n", "<leader>t", ":NvimTreeToggle<CR>")
 
 -- 切换bufferBufferLineCycleNext
 keymap.set("n", "<leader>bn", ":BufferLineCycleNext<CR>")
-keymap.set("n", "<C-h>", ":BufferLineCyclePrev<CR>")
-keymap.set("n", "<C-p>", ":BufferLinePick<CR>")
+keymap.set("n", "<leader>bh", ":BufferLineCyclePrev<CR>")
+keymap.set("n", "<leader>bp", ":BufferLinePick<CR>")
 
