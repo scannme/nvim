@@ -17,8 +17,10 @@ keymap.set("n", "<leader>nh", ":nohl<CR>")
 
 -- ---------- 插件 ---------- ---
 -- nvim-tree
-keymap.set("n", "<leader>e", ":NvimTreeToggle<CR>")
+keymap.set("n", "<leader>t", ":NvimTreeToggle<CR>")
 
--- 切换buffer
-keymap.set("n", "<C-L>", ":bnext<CR>")
-keymap.set("n", "<C-H>", ":bprevious<CR>")
+-- 切换bufferBufferLineCycleNext
+keymap.set("n", "<leader>bn", ":BufferLineCycleNext<CR>")
+keymap.set("n", "<C-h>", ":BufferLineCyclePrev<CR>")
+keymap.set("n", "<C-p>", ":BufferLinePick<CR>")
+
