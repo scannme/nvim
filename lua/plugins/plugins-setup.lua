@@ -73,6 +73,12 @@ return require('packer').startup(function(use)
   use "nvim-lua/plenary.nvim"
   use "mfussenegger/nvim-dap"
   -- debug end
+  use 'voldikss/vim-floaterm' --float term
+  use("nathom/filetype.nvim")  --fast start
+
+  use {
+    'goolord/alpha-nvim',
+  }
 
   if packer_bootstrap then
     require('packer').sync()

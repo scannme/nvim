@@ -67,4 +67,5 @@ VIM模式
 ||n|\<space>fg| 使用grep查找文件的内容信息, 需要安装 ripgrep|
 ||n|\<space>fb|查找buffer|
 ||n|\<space>lk|列出keymap的信息|
+|float term|n|\<space>fn|create a float term|
 

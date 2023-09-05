@@ -24,3 +24,6 @@ keymap.set("n", "<leader>bn", ":BufferLineCycleNext<CR>")
 keymap.set("n", "<leader>bh", ":BufferLineCyclePrev<CR>")
 keymap.set("n", "<leader>bp", ":BufferLinePick<CR>")
 
+
+-- float term
+keymap.set("n", "<leader>fn", ":FloatermNew<CR>")

@@ -34,4 +34,5 @@ opt.termguicolors = true
 opt.signcolumn = "yes"
 vim.cmd[[colorscheme tokyonight-moon]]
 
+vim.loader.enable() -- load the impatient for faster start
 
