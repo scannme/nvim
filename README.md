@@ -40,9 +40,9 @@ VIM模式
 
 | 插件  | 模式|快捷键 |功能 |
 | :----- | :--:| :--: | :-------|
-| bufferline |   n | \<leader>bn | 选择下一个buffer   |
-|    |  n | \<leader>bh|    选择上一个buffer |
-|  |   n |  \<leader>bp| 指定名称选择一个buffer|  |
+| bufferline |   n | \<space>bn | 选择下一个buffer   |
+|    |  n | \<space>bh|    选择上一个buffer |
+|  |   n |  \<space>bp| 指定名称选择一个buffer|  |
 |lsp| n | gD| 跳转到声明|
 ||n|gd|跳转到定义|
 ||n|K| 显示函数声明信息|
