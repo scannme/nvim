@@ -67,5 +67,12 @@ VIM模式
 ||n|\<space>fg| 使用grep查找文件的内容信息, 需要安装 ripgrep|
 ||n|\<space>fb|查找buffer|
 ||n|\<space>lk|列出keymap的信息|
-|float term|n|\<space>fn|create a float term|
+|float term|n|\<F7>|create a float term|
+|float term|n|\<F8>|delete a float term|
+|G|v|K|选中多行移动|
+|G|v|J|选中多行移动|
+|G|n|<space>sv|水平新增窗口|
+|G|n|<space>sh|垂直新增窗口|
+|G|n|<space>nh|取消高亮|
+
 
