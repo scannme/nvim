@@ -26,4 +26,6 @@ keymap.set("n", "<leader>bp", ":BufferLinePick<CR>")
 
 
 -- float term
-keymap.set("n", "<leader>fn", ":FloatermNew<CR>")
+keymap.set("n", "<F7>", ":FloatermNew<CR>")
+keymap.set("t", "<F8>", "<silent> <C-t> <C-\\><C-n>:FloatermKill<CR>")
+

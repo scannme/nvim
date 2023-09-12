@@ -16,3 +16,5 @@ require("plugins/gitsigns")
 require("plugins/telescope")
 require("plugins/rust-lang")
 require("plugins/start")
+
+-- vim.lsp.set_log_level("debug")
