@@ -40,9 +40,9 @@ VIM模式
 
 | 插件  | 模式|快捷键 |功能 |
 | :----- | :--:| :--: | :-------|
-| bufferline |   n | \<Ctrl-l> | 选择下一个buffer   |
-|    |  n | \<Ctrl-h>|    选择上一个buffer |
-|  |   n |  \<Ctrl-p| 指定名称选择一个buffer|  |
+| bufferline |   n | \<space>bn | 选择下一个buffer   |
+|    |  n | \<space>bh|    选择上一个buffer |
+|  |   n |  \<space>bp| 指定名称选择一个buffer|  |
 |lsp| n | gD| 跳转到声明|
 ||n|gd|跳转到定义|
 ||n|K| 显示函数声明信息|
@@ -67,5 +67,12 @@ VIM模式
 ||n|\<space>fg| 使用grep查找文件的内容信息, 需要安装 ripgrep|
 ||n|\<space>fb|查找buffer|
 ||n|\<space>lk|列出keymap的信息|
-|float term|n|\<space>fn|create a float term|
+|float term|n|\<F7>|create a float term|
+|float term|n|\<F8>|delete a float term|
+|G|v|K|选中多行移动|
+|G|v|J|选中多行移动|
+|G|n|<space>sv|水平新增窗口|
+|G|n|<space>sh|垂直新增窗口|
+|G|n|<space>nh|取消高亮|
+
 
