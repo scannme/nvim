@@ -1,0 +1,25 @@
+# lazy.nvim downloads all plugin sources here; reproducible from lazy-lock.json
+lazy/
+
+# Claude Code per-project state
+.claude/
+
+# Local-only overrides (use this for machine-specific tweaks)
+lua/local.lua
+lua/config/local.lua
+
+# Editor / OS junk
+*.swp
+*.swo
+*.swn
+*~
+*.bak
+.DS_Store
+Thumbs.db
+
+# Compiled treesitter parsers (downloaded on demand)
+parser/
+parser-info/
+
+# Spell files (downloaded on demand)
+spell/
