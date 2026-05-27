@@ -39,6 +39,10 @@ map("n", "<Leader>fS", tb("lsp_dynamic_workspace_symbols"), { desc = "Symbols (w
 map("n", "<Leader>fs", "<cmd>Telescope aerial<CR>", { desc = "Symbols (aerial)" })
 map("n", "<Leader>ls", "<cmd>Telescope aerial<CR>", { desc = "Symbols (aerial)" })
 
+-- Call hierarchy (litee-calltree): drill-down tree of callers/callees
+map("n", "<Leader>ci", vim.lsp.buf.incoming_calls, { desc = "Incoming calls (callers tree)" })
+map("n", "<Leader>co", vim.lsp.buf.outgoing_calls, { desc = "Outgoing calls (callees tree)" })
+
 -- Fuzzy find in current buffer
 map("n", "<Leader>/", tb("current_buffer_fuzzy_find"), { desc = "Fuzzy find in current buffer" })
 

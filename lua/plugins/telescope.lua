@@ -25,6 +25,12 @@ return {
     telescope.setup({
       defaults = {
         file_ignore_patterns = { "cooked", "kernel", ".git/", "build", "__pycache__", "gui" },
+        path_display = { "filename_first" },
+        layout_strategy = "horizontal",
+        layout_config = {
+          horizontal = { width = 0.95, height = 0.9, preview_width = 0.5 },
+        },
+        dynamic_preview_title = true,
         mappings = {
           i = {
             -- 插入模式下 Esc 和 Ctrl-c 都关闭
@@ -47,6 +53,14 @@ return {
         },
       },
       pickers = {
+        lsp_dynamic_workspace_symbols = {
+          fname_width = 60,
+          symbol_width = 40,
+        },
+        lsp_workspace_symbols = {
+          fname_width = 60,
+          symbol_width = 40,
+        },
         lsp_document_symbols = {
           entry_maker = function(entry)
             local displayer = entry_display.create({
