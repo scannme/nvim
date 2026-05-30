@@ -25,6 +25,18 @@ return {
       "williamboman/mason-lspconfig.nvim",
     },
     config = function()
+      vim.api.nvim_create_user_command("CheckCallHierarchy", function()
+        local params = vim.lsp.util.make_position_params(0, "utf-8")
+        vim.lsp.buf_request(0, "textDocument/prepareCallHierarchy", params, function(err, items)
+          if err then print("prepare err: " .. vim.inspect(err)) return end
+          if not items or #items == 0 then print("prepare returned empty") return end
+          print("prepare ok, item: " .. (items[1].name or "?") .. " kind=" .. tostring(items[1].kind))
+          vim.lsp.buf_request(0, "callHierarchy/incomingCalls", { item = items[1] }, function(e2, res)
+            print(vim.inspect({ err = e2, count = res and #res or 0, sample = res and res[1] }))
+          end)
+        end)
+      end, {})
+
       -- LSP keybindings via LspAttach autocmd
       vim.api.nvim_create_autocmd("LspAttach", {
         callback = function(args)
@@ -55,8 +67,16 @@ return {
               prompt_prefix   = '🔍 ',
               show_line       = true,
             }
-            local ok = pcall(require('telescope.builtin').lsp_implementations, opts)
-            if not ok or vim.tbl_isempty(vim.fn.getqflist()) then
+            local supports = false
+            for _, c in ipairs(vim.lsp.get_clients({ bufnr = bufnr })) do
+              if c.server_capabilities and c.server_capabilities.implementationProvider then
+                supports = true
+                break
+              end
+            end
+            if supports then
+              require('telescope.builtin').lsp_implementations(opts)
+            else
               require('telescope.builtin').lsp_definitions(opts)
             end
           end, { desc = "Telescope: Impl → Def Fallback" })
@@ -84,6 +104,8 @@ return {
               typeCheckingMode = "basic",
               autoSearchPaths = true,
               useLibraryCodeForTypes = true,
+              indexing = true,
+              diagnosticMode = "workspace",
             },
           },
         },
