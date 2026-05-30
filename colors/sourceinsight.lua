@@ -11,6 +11,8 @@ local p = {
   bg_dim      = "#b8d4b8",
   bg_sel      = "#a8d0a8",
   bg_cursor   = "#c0dcc0",
+  bg_float    = "#aac8aa",
+  border_str  = "#6a8a6a",
   fg          = "#1a2e1a",
   fg_dim      = "#3a4a3a",
   fg_muted    = "#5a6a5a",
@@ -34,8 +36,9 @@ local function hi(group, opts) vim.api.nvim_set_hl(0, group, opts) end
 -- UI
 hi("Normal",        { fg = p.fg,       bg = p.bg })
 hi("NormalNC",      { fg = p.fg,       bg = p.bg })
-hi("NormalFloat",   { fg = p.fg,       bg = p.bg_alt })
-hi("FloatBorder",   { fg = p.border,   bg = p.bg_alt })
+hi("NormalFloat",   { fg = p.fg,        bg = p.bg_float })
+hi("FloatBorder",   { fg = p.border_str, bg = p.bg_float })
+hi("FloatTitle",    { fg = p.blue,      bg = p.bg_float, bold = true })
 hi("Cursor",        { reverse = true })
 hi("lCursor",       { reverse = true })
 hi("TermCursor",    { reverse = true })
@@ -136,6 +139,22 @@ hi("LspSignatureActiveParameter", { fg = p.fg, bg = "#f0e090", bold = true })
 hi("GitSignsAdd",          { fg = p.green_b })
 hi("GitSignsChange",       { fg = p.yellow_b })
 hi("GitSignsDelete",       { fg = p.red_b })
+hi("GitSignsCurrentLineBlame", { fg = p.border, italic = true })
+
+-- gitcommit (used by blame popup and commit message editing)
+hi("gitcommitHash",        { fg = p.yellow_b, bold = true })
+hi("gitcommitAuthor",      { fg = p.cyan_b })
+hi("gitcommitDate",        { fg = p.fg_muted, italic = true })
+hi("gitcommitSummary",     { fg = p.fg,       bold = true })
+hi("gitcommitOverflow",    { fg = p.red_b })
+hi("gitcommitBlank",       { fg = p.fg_muted })
+hi("gitcommitBranch",      { fg = p.magenta,  bold = true })
+hi("gitcommitHeader",      { fg = p.blue,     bold = true })
+hi("gitcommitSelectedType",   { fg = p.green_b })
+hi("gitcommitSelectedFile",   { fg = p.cyan })
+hi("gitcommitUntrackedFile",  { fg = p.red })
+hi("gitcommitDiscardedType",  { fg = p.fg_muted })
+hi("gitcommitDiscardedFile",  { fg = p.fg_muted, italic = true })
 
 -- Treesitter (newer @-style groups)
 hi("@variable",            { fg = p.fg })

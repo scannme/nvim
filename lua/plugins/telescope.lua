@@ -53,6 +53,51 @@ return {
         },
       },
       pickers = {
+        git_commits = {
+          git_command = {
+            "git", "log",
+            "--pretty=format:%h%x09%ad%x09%an%x09%s",
+            "--date=short",
+            "--abbrev-commit",
+            "--",
+          },
+          entry_maker = function(line)
+            local hash, date, author, msg = line:match("^(%S+)\t(%S+)\t([^\t]+)\t(.*)$")
+            if not hash then return nil end
+            local displayer = entry_display.create({
+              separator = "  ",
+              items = {
+                { width = 8 },   -- hash
+                { width = 10 },  -- date
+                { width = 16 },  -- author
+                { remaining = true }, -- subject
+              },
+            })
+            return {
+              value = hash,
+              ordinal = date .. " " .. author .. " " .. msg,
+              msg = msg,
+              date = date,
+              author = author,
+              display = function()
+                return displayer({
+                  { hash,   "TelescopeResultsIdentifier" },
+                  { date,   "TelescopeResultsNumber" },
+                  { author, "TelescopeResultsComment" },
+                  msg,
+                })
+              end,
+            }
+          end,
+        },
+        git_bcommits = {
+          git_command = {
+            "git", "log",
+            "--pretty=format:%h%x09%ad%x09%an%x09%s",
+            "--date=short",
+            "--abbrev-commit",
+          },
+        },
         lsp_dynamic_workspace_symbols = {
           fname_width = 60,
           symbol_width = 40,

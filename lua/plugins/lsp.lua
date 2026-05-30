@@ -61,9 +61,13 @@ return {
             end
           end, { desc = "Telescope: Impl → Def Fallback" })
 
-          bufmap("n", "<leader>ld", vim.lsp.buf.definition, { desc = "LSP: Go to Definition" })
-          bufmap("n", "K", vim.lsp.buf.hover, { desc = "LSP: Hover" })
-          bufmap("n", "<leader>rn", vim.lsp.buf.rename, { desc = "LSP: Rename" })
+          bufmap("n", "<leader>ld", vim.lsp.buf.definition,      { desc = "LSP: Go to Definition" })
+          bufmap("n", "K",          vim.lsp.buf.hover,           { desc = "LSP: Hover" })
+          bufmap("n", "<leader>lR", vim.lsp.buf.rename,          { desc = "LSP: Rename" })
+          bufmap("n", "<leader>la", vim.lsp.buf.code_action,     { desc = "LSP: Code action" })
+          bufmap("n", "<leader>lf", function() vim.lsp.buf.format({ async = true }) end, { desc = "LSP: Format" })
+          bufmap("n", "<leader>lI", vim.lsp.buf.incoming_calls,  { desc = "LSP: Incoming calls" })
+          bufmap("n", "<leader>lO", vim.lsp.buf.outgoing_calls,  { desc = "LSP: Outgoing calls" })
         end,
       })
 

@@ -1,5 +1,6 @@
 return {
   "stevearc/aerial.nvim",
+  branch = "nvim-0.11",
   dependencies = { "nvim-tree/nvim-web-devicons" },
   config = function()
     require("aerial").setup({
