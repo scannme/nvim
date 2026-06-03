@@ -32,6 +32,23 @@ return {
         end,
       })
       vim.keymap.set("n", "<leader>gg", function() lazygit:toggle() end, { desc = "Lazygit (float)" })
+
+      -- Claude Code: 固定右侧 vertical split
+      local claude = Terminal:new({
+        cmd = "claude",
+        hidden = true,
+        direction = "vertical",
+        size = 100,
+        on_open = function(term)
+          vim.cmd("startinsert!")
+          vim.wo.number = false
+          vim.wo.relativenumber = false
+          vim.wo.signcolumn = "no"
+          vim.api.nvim_buf_set_keymap(term.bufnr, "n", "q", "<cmd>close<CR>", { noremap = true, silent = true })
+        end,
+      })
+
+      vim.keymap.set("n", "<leader>cc", function() claude:toggle() end, { desc = "Claude Code (toggle)" })
     end,
   },
 }
