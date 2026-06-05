@@ -24,7 +24,7 @@ return {
 
     telescope.setup({
       defaults = {
-        file_ignore_patterns = { "cooked", "kernel", ".git/", "build", "__pycache__", "gui" },
+        file_ignore_patterns = { "kernel", ".git/", "build", "__pycache__", "gui" },
         path_display = { "filename_first" },
         layout_strategy = "horizontal",
         layout_config = {
