@@ -83,3 +83,9 @@ map("n", "[Q", ":cfirst<CR>",    { desc = "First quickfix" })
 -- Keep visual selection after indenting
 map("v", "<", "<gv", { desc = "Indent left (keep selection)" })
 map("v", ">", ">gv", { desc = "Indent right (keep selection)" })
+
+-- Right-click to paste system clipboard (works in Telescope prompt too)
+map("n", "<RightMouse>", '"+p',     { desc = "Paste system clipboard" })
+map("i", "<RightMouse>", "<C-r>+",  { desc = "Paste system clipboard" })
+map("c", "<RightMouse>", "<C-r>+",  { desc = "Paste system clipboard" })
+map("t", "<RightMouse>", [[<C-\><C-n>"+pi]], { desc = "Paste system clipboard" })
