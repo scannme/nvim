@@ -20,7 +20,6 @@ A modern Neovim setup using **lazy.nvim**, covering LSP, autocompletion, formatt
 | `litee-calltree.nvim`           | Call hierarchy viewer                         |
 | `telescope.nvim`                | Fuzzy file/grep/symbol picker                 |
 | `nvim-tree.lua`                 | File explorer                                 |
-| `harpoon`                       | Pinned-file quick switcher                    |
 | `flash.nvim`                    | Fast jump motions                             |
 | `toggleterm.nvim`               | Built-in terminal + lazygit/Claude floats     |
 | `gitsigns.nvim`                 | Git hunk signs + inline blame                 |
@@ -120,15 +119,6 @@ Leader key is `<Space>` (see `lua/config/settings.lua`).
 | `<Leader>gH`    | Diffview: repo history            |
 | `<Leader>gx`    | Diffview: close                   |
 | `<Leader>gg`    | Lazygit (float)                   |
-
-### 🪝 Harpoon (`h`)
-
-| Key             | Action                            |
-|-----------------|-----------------------------------|
-| `<Leader>ha`    | Add current file                  |
-| `<Leader>hh`    | Toggle quick menu                 |
-| `<Leader>1..4`  | Jump to slot 1–4                  |
-| `<Leader>hn/hp` | Next / prev slot                  |
 
 ### 🐹 Code (Go-only, `c`)
 

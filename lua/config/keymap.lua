@@ -74,6 +74,15 @@ map("n", "<Leader>dp", vim.diagnostic.goto_prev,  { desc = "Prev diagnostic" })
 -- <C-\> opens float terminal (toggleterm default), th/tv defined in plugins/terminal.lua
 map("t", "<Esc><Esc>", [[<C-\><C-n>]], { desc = "Exit terminal mode" })
 
+-- Terminal-mode window navigation (Claude/lazygit 等终端窗口里也能用 C-h/j/k/l)
+map("t", "<C-h>", [[<C-\><C-n><C-w>h]], { desc = "Term → left window" })
+map("t", "<C-j>", [[<C-\><C-n><C-w>j]], { desc = "Term → down window" })
+map("t", "<C-k>", [[<C-\><C-n><C-w>k]], { desc = "Term → up window" })
+map("t", "<C-l>", [[<C-\><C-n><C-w>l]], { desc = "Term → right window" })
+
+-- Toggle Claude from inside its terminal (leader is space, can't be used in terminal mode)
+map("t", "<C-q>", [[<C-\><C-n><cmd>ClaudeCode<CR>]], { desc = "Term: toggle Claude" })
+
 -- Quickfix navigation
 map("n", "]q", ":cnext<CR>",     { desc = "Next quickfix" })
 map("n", "[q", ":cprevious<CR>", { desc = "Prev quickfix" })
