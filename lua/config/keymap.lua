@@ -21,7 +21,7 @@ map("n", "<S-h>", ":bprevious<CR>")
 
 -- File explorer & symbols sidebar
 map("n", "<Leader>e", ":NvimTreeToggle<CR>",  { desc = "Toggle file explorer" })
--- <Leader>a (Aerial) is mapped in plugins/aerial.lua
+-- <Leader>o (Aerial outline) is mapped in plugins/aerial.lua
 
 -- Find (f) — generic pickers
 map("n", "<Leader>ff", tb("find_files"), { desc = "Find files" })

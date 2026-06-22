@@ -68,7 +68,7 @@ Leader key is `<Space>` (see `lua/config/settings.lua`).
 
 | Key                    | Action                                       |
 |------------------------|----------------------------------------------|
-| `<Leader>a`            | Toggle Aerial (symbols outline)              |
+| `<Leader>o`            | Toggle Aerial (symbols outline)              |
 | `<Leader>ss`           | Symbols in current buffer (Aerial)           |
 | `<Leader>sS`           | Workspace symbols (LSP) — V-mode prefills sel|
 | `<Leader>sw`           | Grep word under cursor (V-mode: selection)   |

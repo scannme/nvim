@@ -6,7 +6,7 @@ return {
     require("aerial").setup({
       layout = { default_direction = "right" },
     })
-    vim.keymap.set("n", "<leader>a", "<cmd>AerialToggle!<CR>", { desc = "Toggle Aerial (symbols)" })
+    vim.keymap.set("n", "<leader>o", "<cmd>AerialToggle!<CR>", { desc = "Toggle Aerial (outline)" })
   end,
 }
 

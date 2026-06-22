@@ -29,6 +29,10 @@ return {
           vim.cmd("startinsert!")
           -- 在 lazygit 里 q 直接关闭终端窗口
           vim.api.nvim_buf_set_keymap(term.bufnr, "n", "q", "<cmd>close<CR>", { noremap = true, silent = true })
+          -- lazygit 自己用 <C-h/l> 切换面板，恢复 buffer-local passthrough，避免被全局映射截走导致浮窗失焦
+          for _, k in ipairs({ "<C-h>", "<C-j>", "<C-k>", "<C-l>" }) do
+            vim.api.nvim_buf_set_keymap(term.bufnr, "t", k, k, { noremap = true, silent = true })
+          end
         end,
       })
       vim.keymap.set("n", "<leader>gg", function() lazygit:toggle() end, { desc = "Lazygit (float)" })

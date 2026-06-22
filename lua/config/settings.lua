@@ -17,3 +17,22 @@ vim.cmd.colorscheme("sourceinsight")
 vim.api.nvim_create_autocmd("TextYankPost", {
   callback = function() vim.highlight.on_yank({ timeout = 150 }) end,
 })
+
+-- Auto reload files changed outside of nvim (e.g. by claude code)
+vim.opt.autoread = true
+
+vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold", "CursorHoldI" }, {
+  pattern = "*",
+  callback = function()
+    if vim.fn.mode() ~= "c" and vim.fn.getcmdwintype() == "" then
+      vim.cmd("checktime")
+    end
+  end,
+})
+
+vim.api.nvim_create_autocmd("FileChangedShellPost", {
+  pattern = "*",
+  callback = function()
+    vim.notify("文件在磁盘上被修改，已重新加载", vim.log.levels.WARN)
+  end,
+})
