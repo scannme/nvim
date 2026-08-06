@@ -7,14 +7,32 @@ return {
       require("mason").setup()
       -- 确保 mason bin 在 PATH 中
       vim.env.PATH = vim.fn.stdpath("data") .. "/mason/bin:" .. vim.env.PATH
+
+      -- jdtls 单独通过 nvim-jdtls 管理，这里只保证 Mason 装好它
+      -- (放在 mason.nvim 而不是 mason-lspconfig，避免 lspconfig 尝试 auto-enable
+      --  跟 nvim-jdtls 打架)
+      -- 顺便装 Java DAP + Test adapter，配合 nvim-dap 可以在 nvim 里断点调试 + 跑单个 JUnit
+      local registry = require("mason-registry")
+
+      -- jdtls 用最新版（Mason 默认）—— 但需要 Java 21 运行（见 jdtls.lua）
+      local java_tools = { "jdtls", "java-debug-adapter", "java-test", "google-java-format" }
+      for _, tool in ipairs(java_tools) do
+        if not registry.is_installed(tool) then
+          vim.notify("Installing " .. tool .. " via Mason...", vim.log.levels.INFO)
+          registry.get_package(tool):install()
+        end
+      end
     end,
   },
   {
     "williamboman/mason-lspconfig.nvim",
     dependencies = { "williamboman/mason.nvim" },
     opts = {
-      ensure_installed = { "pyright", "gopls", "clangd" },
+      ensure_installed = { "pyright", "gopls", "clangd", "ts_ls" },  -- jdtls 不放这里！
       automatic_installation = true,
+      -- 关掉 auto-enable，避免 mason-lspconfig 自动帮 jdtls 调 vim.lsp.enable()
+      -- （nvim-jdtls 会自己 start_or_attach，两个都启动会冲突）
+      automatic_enable = false,
     },
   },
   {
@@ -125,7 +143,17 @@ return {
         filetypes = { "c", "cpp", "objc", "objcpp" },
       })
 
-      vim.lsp.enable({ "pyright", "gopls", "clangd" })
+      vim.lsp.config("ts_ls", {
+        root_markers = {
+          "package.json", "tsconfig.json", "jsconfig.json", ".git",
+        },
+        filetypes = {
+          "javascript", "javascriptreact", "javascript.jsx",
+          "typescript", "typescriptreact", "typescript.tsx",
+        },
+      })
+
+      vim.lsp.enable({ "pyright", "gopls", "clangd", "ts_ls" })
     end,
   },
 }
