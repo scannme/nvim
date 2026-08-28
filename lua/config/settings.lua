@@ -18,6 +18,10 @@ vim.api.nvim_create_autocmd("TextYankPost", {
   callback = function() vim.highlight.on_yank({ timeout = 150 }) end,
 })
 
+-- 关闭终端程序（Claude Code 等）的 OSC 8 超链接：
+-- nvim 的内置终端会把超链接属性“漏”到相邻单元格上，外层终端就把整片文字画成下划线
+vim.env.FORCE_HYPERLINK = "0"
+
 -- Auto reload files changed outside of nvim (e.g. by claude code)
 vim.opt.autoread = true
 

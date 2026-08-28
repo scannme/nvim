@@ -15,8 +15,14 @@ return {
       local registry = require("mason-registry")
 
       -- jdtls 用最新版（Mason 默认）—— 但需要 Java 21 运行（见 jdtls.lua）
-      local java_tools = { "jdtls", "java-debug-adapter", "java-test", "google-java-format" }
-      for _, tool in ipairs(java_tools) do
+      local tools = {
+        "jdtls", "java-debug-adapter", "java-test", "google-java-format",
+        -- prettierd: prettier 的常驻守护进程。rainbow 那种 10k 文件的仓库里，
+        -- 每次保存 spawn 一次 node 跑 prettier 要几百 ms，prettierd 是常驻的。
+        -- 它会自动解析项目里 node_modules 的 prettier 和 .prettierrc，不是用自带的版本。
+        "prettierd",
+      }
+      for _, tool in ipairs(tools) do
         if not registry.is_installed(tool) then
           vim.notify("Installing " .. tool .. " via Mason...", vim.log.levels.INFO)
           registry.get_package(tool):install()
@@ -28,7 +34,8 @@ return {
     "williamboman/mason-lspconfig.nvim",
     dependencies = { "williamboman/mason.nvim" },
     opts = {
-      ensure_installed = { "pyright", "gopls", "clangd", "ts_ls" },  -- jdtls 不放这里！
+      -- vtsls 而不是 ts_ls：见下面 vim.lsp.config("vtsls") 的注释
+      ensure_installed = { "pyright", "gopls", "clangd", "vtsls" },  -- jdtls 不放这里！
       automatic_installation = true,
       -- 关掉 auto-enable，避免 mason-lspconfig 自动帮 jdtls 调 vim.lsp.enable()
       -- （nvim-jdtls 会自己 start_or_attach，两个都启动会冲突）
@@ -106,6 +113,51 @@ return {
           bufmap("n", "<leader>lf", function() vim.lsp.buf.format({ async = true }) end, { desc = "LSP: Format" })
           bufmap("n", "<leader>lI", vim.lsp.buf.incoming_calls,  { desc = "LSP: Incoming calls" })
           bufmap("n", "<leader>lO", vim.lsp.buf.outgoing_calls,  { desc = "LSP: Outgoing calls" })
+
+          -- 整理 import（删没用的 + 排序）。走通用的 source.organizeImports code action，
+          -- 所以 vtsls / gopls / jdtls 都吃这一套。
+          bufmap("n", "<leader>lo", function()
+            vim.lsp.buf.code_action({
+              context = { only = { "source.organizeImports" }, diagnostics = {} },
+              apply = true,
+            })
+          end, { desc = "LSP: Organize imports" })
+
+          bufmap("n", "<leader>lh", function()
+            local on = vim.lsp.inlay_hint.is_enabled({ bufnr = bufnr })
+            vim.lsp.inlay_hint.enable(not on, { bufnr = bufnr })
+          end, { desc = "LSP: Toggle inlay hints" })
+
+          -- vtsls 专属：跳到「真正的源码」而不是 .d.ts。
+          -- monorepo 里 gd 经常落在 dist/*.d.ts 上，这个能穿透过去。没有 vtsls 或者
+          -- 查不到结果时退回普通 definition。
+          if args.data and args.data.client_id then
+            local client = vim.lsp.get_client_by_id(args.data.client_id)
+            if client and client.name == "vtsls" then
+              bufmap("n", "<leader>lD", function()
+                local params = vim.lsp.util.make_position_params(0, client.offset_encoding)
+                client:exec_cmd({
+                  title = "Go to Source Definition",
+                  command = "typescript.goToSourceDefinition",
+                  arguments = { params.textDocument.uri, params.position },
+                }, { bufnr = bufnr }, function(err, result)
+                  if err or type(result) ~= "table" or vim.tbl_isempty(result) then
+                    vim.lsp.buf.definition()
+                    return
+                  end
+                  if #result == 1 then
+                    vim.lsp.util.show_document(result[1], client.offset_encoding, { focus = true })
+                  else
+                    vim.fn.setqflist({}, " ", {
+                      title = "Source Definitions",
+                      items = vim.lsp.util.locations_to_items(result, client.offset_encoding),
+                    })
+                    vim.cmd("botright copen")
+                  end
+                end)
+              end, { desc = "LSP: Go to Source Definition (vtsls)" })
+            end
+          end
         end,
       })
 
@@ -143,17 +195,48 @@ return {
         filetypes = { "c", "cpp", "objc", "objcpp" },
       })
 
-      vim.lsp.config("ts_ls", {
-        root_markers = {
-          "package.json", "tsconfig.json", "jsconfig.json", ".git",
-        },
-        filetypes = {
-          "javascript", "javascriptreact", "javascript.jsx",
-          "typescript", "typescriptreact", "typescript.tsx",
+      -- vtsls 取代 ts_ls。两个不能同时开（会双份诊断 + 双份 tsserver 内存）。
+      --
+      -- 换掉的原因是 monorepo：ts_ls 用 package.json 当 root marker，像 rainbow 那种
+      -- 少数 lib 自带 package.json 的仓库会被切成好几个 workspace，每个起一份 tsserver，
+      -- 跨 lib 跳转还跳不过去。vtsls 的 root 是 lock 文件 / .git（即仓库根），单实例，
+      -- 内部按文件找最近的 tsconfig —— 正好是 Nx 那种「一个根 + 一堆 project」的形状。
+      --
+      -- 另外 tsserver 默认堆是 3GB，rainbow 有 10667 个 .ts/.tsx + 91 条 path alias，
+      -- 撑不住，所以 maxTsServerMemory 拉到 8GB。
+      vim.lsp.config("vtsls", {
+        settings = {
+          vtsls = {
+            -- 用项目 node_modules 里的 TypeScript，而不是 vtsls 自带的那份。
+            -- rainbow 是 TS 6.0.3，版本对不上语法会报错。
+            autoUseWorkspaceTsdk = true,
+            experimental = {
+              -- 服务端做模糊匹配，10k 文件下补全候选排序明显更准
+              completion = { enableServerSideFuzzyMatch = true },
+            },
+          },
+          typescript = {
+            tsserver = { maxTsServerMemory = 8192 },
+            -- 移动/重命名文件时自动改所有 import
+            updateImportsOnFileMove = { enabled = "always" },
+            suggest = { completeFunctionCalls = true },
+            -- importModuleSpecifier 保持默认的 "shortest"：rainbow 的惯例是 lib 内部走
+            -- 相对路径、跨 lib 走 @lacework/* alias，"shortest" 生成的正好是这个形状。
+            inlayHints = {
+              parameterNames        = { enabled = "literals" },
+              variableTypes         = { enabled = false },
+              propertyDeclarationTypes = { enabled = true },
+              functionLikeReturnTypes  = { enabled = true },
+              enumMemberValues      = { enabled = true },
+            },
+          },
+          javascript = {
+            updateImportsOnFileMove = { enabled = "always" },
+          },
         },
       })
 
-      vim.lsp.enable({ "pyright", "gopls", "clangd", "ts_ls" })
+      vim.lsp.enable({ "pyright", "gopls", "clangd", "vtsls" })
     end,
   },
 }
