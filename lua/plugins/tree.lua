@@ -5,10 +5,10 @@ return {
     config = function()
       require("nvim-tree").setup({
         view = {
-          -- 自适应宽度：随最长文件名伸缩，不超过 60 列
+          -- 自适应宽度：随最长文件名伸缩，够放下 Java 那种长类名
           width = {
-            min = 35,
-            max = 60,
+            min = 45,
+            max = 80,
             padding = 2,
           },
         },
