@@ -1,3 +1,48 @@
+-- jdtls 的 classpath 是 bazel-jdtls-classpath.sh 生成的静态快照，只有跑过脚本的
+-- 模块才有。缺失时 LSP 看起来是连着的，但什么都解析不了，所以启动时先报出来。
+local function classpath_state(root)
+  if vim.fn.filereadable(root .. "/.classpath") ~= 1 then
+    return "missing"
+  end
+  local generated_at = vim.fn.getftime(root .. "/.classpath")
+  for _, name in ipairs({ "BUILD.bazel", "BUILD" }) do
+    local build_file = root .. "/" .. name
+    if vim.fn.filereadable(build_file) == 1 and vim.fn.getftime(build_file) > generated_at then
+      return "stale"
+    end
+  end
+  return "ok"
+end
+
+-- 每个模块一个 jdtls 实例，每个都吃几个 G。切走之后没有 buffer 的实例留着只占内存。
+-- 当前模块的实例一律保留：停掉它只会换来一次几十秒的重新索引。
+local function stop_idle_jdtls(keep_root)
+  for _, client in ipairs(vim.lsp.get_clients({ name = "jdtls" })) do
+    local in_use = client.config.root_dir == keep_root
+    for bufnr in pairs(client.attached_buffers or {}) do
+      if vim.api.nvim_buf_is_loaded(bufnr) then
+        in_use = true
+        break
+      end
+    end
+    if not in_use then
+      vim.lsp.stop_client(client.id, true)
+    end
+  end
+end
+
+-- 重启不重新生成 classpath：卡住的多数是 jdtls 本身，不是 classpath 变了。
+local function restart_jdtls()
+  for _, client in ipairs(vim.lsp.get_clients({ name = "jdtls" })) do
+    vim.lsp.stop_client(client.id, true)
+  end
+  vim.defer_fn(function()
+    if vim.bo.filetype == "java" then
+      vim.cmd("doautocmd FileType java")
+    end
+  end, 500)
+end
+
 return {
   {
     "mfussenegger/nvim-jdtls",
@@ -8,7 +53,8 @@ return {
     -- config 仍受 ft=java 约束，只有打开 Java 文件才启动 jdtls 本体。
     init = function()
       vim.api.nvim_create_user_command("BazelJdtlsClasspath", function(opts)
-        local target = opts.args ~= "" and opts.args or "//iris:iris-test-lib"
+        -- 不带参数时交给脚本按当前文件所在模块推断 target
+        local target = opts.args ~= "" and opts.args or vim.fn.expand("%:p")
 
         local script_hits = vim.fs.find("tools/bazel-jdtls-classpath.sh",
           { upward = true, path = vim.fn.expand("%:p:h") })
@@ -30,7 +76,10 @@ return {
             vim.schedule(function()
               if res.code == 0 then
                 vim.notify("Classpath refreshed. Restarting jdtls...", vim.log.levels.INFO)
-                vim.cmd("LspRestart jdtls")
+                -- 不能用 :LspRestart jdtls —— 它按名字选中 nvim-lspconfig 自带的
+                -- lsp/jdtls.lua，那份配置的 cmd 拿不到 config 会报错，而且绕过了下面
+                -- config() 里的 Java 21 / Lombok / 模块级 root 设置。
+                restart_jdtls()
               else
                 vim.notify("bazel-jdtls-classpath.sh failed (exit " .. res.code .. ")\n"
                   .. (res.stderr or "") .. "\n" .. (res.stdout or ""),
@@ -40,8 +89,12 @@ return {
           end)
       end, {
         nargs = "?",
-        desc = "Regenerate iris/.classpath via bazel-jdtls-classpath.sh + LspRestart",
+        complete = "file",
+        desc = "Regenerate the module's .classpath via bazel-jdtls-classpath.sh + restart jdtls",
       })
+
+      vim.api.nvim_create_user_command("JdtlsRestart", restart_jdtls,
+        { desc = "Restart jdtls without rebuilding the classpath" })
 
       vim.api.nvim_create_autocmd("BufWritePost", {
         pattern = { "BUILD.bazel", "BUILD" },
@@ -106,6 +159,29 @@ return {
 
           vim.notify("jdtls root: " .. project_root, vim.log.levels.INFO)
 
+          local state = classpath_state(project_root)
+          if state == "missing" then
+            vim.notify("该模块没有 .classpath，跳转和补全都不可用。\n"
+                     .. "运行 :BazelJdtlsClasspath 生成（不带参数即按当前文件推断 target）",
+                     vim.log.levels.WARN)
+          elseif state == "stale" then
+            vim.notify("BUILD.bazel 比 .classpath 新，依赖可能已经变了。\n"
+                     .. "需要时运行 :BazelJdtlsClasspath 刷新", vim.log.levels.WARN)
+          end
+
+          stop_idle_jdtls(project_root)
+
+          -- 默认 <C-]> 在没有 LSP 时退回 ctags，只报一句 "找不到 tag"，看不出是 jdtls 掉线。
+          -- 挂在 FileType 上而不是 on_attach：jdtls 没连上时 on_attach 压根不会跑。
+          vim.keymap.set("n", "<C-]>", function()
+            if #vim.lsp.get_clients({ bufnr = 0, name = "jdtls" }) == 0 then
+              vim.notify("jdtls 未连接：:JdtlsRestart 重启，或 :BazelJdtlsClasspath 重建 classpath",
+                vim.log.levels.WARN)
+              return
+            end
+            vim.lsp.buf.definition()
+          end, { buffer = true, desc = "JDT: Go to Definition" })
+
           -- 关键：jdtls 新版本要求 Java 21+ 运行自己
           -- 但你项目是 Java 17，所以：
           --   cmd 用 Java 21 启动 jdtls
@@ -138,8 +214,13 @@ return {
             "-Dosgi.bundles.defaultStartLevel=4",
             "-Declipse.product=org.eclipse.jdt.ls.core.product",
             "-Dlog.protocol=true",
-            "-Dlog.level=ALL",
-            "-Xmx4g",  -- 大 monorepo（如 lacework/services）建议 4G+
+            -- ALL 会把 jdtls 的全部 stderr 灌进 ~/.local/state/nvim/lsp.log（涨到过 24MB），
+            -- 写日志本身也拖慢响应
+            "-Dlog.level=WARNING",
+            -- iris 这种模块 classpath 有近 2000 个 jar，4g 跑半小时就贴着上限 GC 抖动
+            "-Xmx6g",
+            "-XX:+UseG1GC",
+            "-XX:+UseStringDeduplication",
             "--add-modules=ALL-SYSTEM",
             "--add-opens", "java.base/java.util=ALL-UNNAMED",
             "--add-opens", "java.base/java.lang=ALL-UNNAMED",
