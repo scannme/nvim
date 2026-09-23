@@ -168,6 +168,18 @@ return {
           "requirements.txt", "Pipfile", "pyrightconfig.json",
           ".git",
         },
+        -- pyright 默认用 PATH 上的 python（/usr/bin/python），不认项目里的 .venv，
+        -- 第三方包全报 "could not be resolved"。这里从 root 往上找 .venv / venv，
+        -- 找不到再看 $VIRTUAL_ENV。
+        before_init = function(_, config)
+          local venv = vim.fs.find({ ".venv", "venv" }, {
+            upward = true, type = "directory", path = config.root_dir,
+          })[1] or vim.env.VIRTUAL_ENV
+          local py = venv and venv .. "/bin/python"
+          if py and vim.fn.executable(py) == 1 then
+            config.settings.python.pythonPath = py
+          end
+        end,
         settings = {
           python = {
             analysis = {
@@ -175,7 +187,9 @@ return {
               autoSearchPaths = true,
               useLibraryCodeForTypes = true,
               indexing = true,
-              diagnosticMode = "workspace",
+              -- workspace 模式会分析整个仓库，foggy-anchor / sbm_main 这种 2 万多个 .py
+              -- 的仓库会卡死，只分析打开的文件
+              diagnosticMode = "openFilesOnly",
             },
           },
         },
