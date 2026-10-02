@@ -21,6 +21,8 @@ return {
         -- 每次保存 spawn 一次 node 跑 prettier 要几百 ms，prettierd 是常驻的。
         -- 它会自动解析项目里 node_modules 的 prettier 和 .prettierrc，不是用自带的版本。
         "prettierd",
+        -- CloudFormation 模板的 linter，nvim-lint 调用（见 iac.lua）
+        "cfn-lint",
       }
       for _, tool in ipairs(tools) do
         if not registry.is_installed(tool) then
@@ -35,7 +37,11 @@ return {
     dependencies = { "williamboman/mason.nvim" },
     opts = {
       -- vtsls 而不是 ts_ls：见下面 vim.lsp.config("vtsls") 的注释
-      ensure_installed = { "pyright", "gopls", "clangd", "vtsls" },  -- jdtls 不放这里！
+      ensure_installed = {
+        "pyright", "gopls", "clangd", "vtsls",  -- jdtls 不放这里！
+        -- IaC：配置和 enable 在 iac.lua
+        "terraformls", "tflint", "yamlls", "jsonls",
+      },
       automatic_installation = true,
       -- 关掉 auto-enable，避免 mason-lspconfig 自动帮 jdtls 调 vim.lsp.enable()
       -- （nvim-jdtls 会自己 start_or_attach，两个都启动会冲突）

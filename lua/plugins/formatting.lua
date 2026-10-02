@@ -23,6 +23,8 @@ return {
         sh         = { "shfmt" },
         json       = { "jq" },
         yaml       = { "yamlfmt" },
+        terraform  = { "terraform_fmt" },
+        ["terraform-vars"] = { "terraform_fmt" },
         -- Java is left out on purpose: google-java-format rewrites the whole file (2-space
         -- indent, reordered imports) and the repos here use 4-space with unsorted imports, so
         -- saving one file turned a 90-line change into a 2000-line diff. Leaving it out is
